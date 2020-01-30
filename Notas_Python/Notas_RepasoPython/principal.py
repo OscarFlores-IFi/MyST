@@ -12,6 +12,7 @@ import funciones as fn                              # Para procesamiento de dato
 import visualizaciones as vs                        # Para visualizacion de datos
 import pandas as pd                                 # Procesamiento de datos
 import numpy as np
+import plotly.express as px
 from datos import OA_Ak                             # Importar token para API de OANDA
 
 # -- --------------------------------------------------------- Descargar precios de OANDA -- #
@@ -51,23 +52,38 @@ vs_grafica2.show()
 
 # -- 01: Mes de la vela.
 df_pe['mes'] = [df_pe['TimeStamp'][i].month for i in range(0,len(df_pe['TimeStamp']))]
-# -- 02: Sesion de la vela.
 
-df_pe['sesion'] = np.zeros((0,len(df_pe['TimeStamp'])))
-for i  in range(0,len(df_pe['TimeStamp'])):
-    if df_pe['TimeStamp'][i].hour in [22, 23, 0, 1, 2, 3, 4, 5, 6, 7]:
-        df_pe['sesion'][i] = 'asia'
-    elif df_pe['TimeStamp'][i].hour in [8]:
-        df_pe['sesion'][i] = 'asia_europa'
-    elif df_pe['TimeStamp'][i].hour in [9, 10, 11, 12 ]:
-        df_pe['sesion'][i] = 'europa'
-    elif df_pe['TimeStamp'][i].hour in [13, 14, 15, 16]:
-        df_pe['sesion'][i] = 'europa_america'
-    elif df_pe['TimeStamp'][i].hour in [13, 14, 15, 16]:
-        df_pe['sesion'][i] = 'america'
+# -- 02: Sesion de la vela.
+sesion = []
+for i  in range(len(df_pe.mes)):
+    if i in [22, 23, 0, 1, 2, 3, 4, 5, 6, 7]:
+        s = 'asia'
+    elif i in [8]:
+        s = 'asia_europa'
+    elif i in [9, 10, 11, 12 ]:
+        s = 'europa'
+    elif i in [13, 14, 15, 16]:
+        s = 'europa_america'
+    elif i in [17, 18, 19, 20, 21]:
+        s = 'america'
+    sesion.append(s)
+df_pe['sesion'] = sesion
 
 # -- 03: Amplitud OC esperada de vela para cualquier dia de la semana (Dist de Freq).
+df_pe['OC'] = (df_pe.Open - df_pe.Close)*pip_mult
+
 # -- 04: Amplitud HL esperada de vela para cualquier dia de la semana (Dist de Freq).
+df_pe['hl'] = (df_pe.High - df_pe.Low)*pip_mult
+
 # -- 05: Evolucion de velas consecutivas (1: Alcistas, 0: Bajistas).
+df_pe['sentido'] = ['alcista'if i>=0 else 'bajista' for i in df_pe.co]
+
 # -- 06: Maxima evolucion esperada de velas consecutivas (Dist Acum de Freq).
+periodos = [5, 25, 50]
+tmp = [[df_pe['hl'][i:i+5].max() for i in range(len(df_pe.hl)-j)] for j in periodos]
+volatilidad_5 = tmp[0]
+volatilidad_25 = tmp[1]
+volatilidad_50 = tmp[2]
+
 # -- 07: Calculo + Grafica autopropuesta.
+px.line(df_pe, x = "TimeStamp", y = "OC", title = 'Open-Close pips').show()
