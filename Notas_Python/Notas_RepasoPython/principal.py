@@ -60,7 +60,7 @@ for i  in range(len(df_pe.mes)):
         s = 'asia'
     elif i in [8]:
         s = 'asia_europa'
-    elif i in [9, 10, 11, 12 ]:
+    elif i in [9, 10, 11, 12]:
         s = 'europa'
     elif i in [13, 14, 15, 16]:
         s = 'europa_america'
@@ -77,6 +77,7 @@ df_pe['hl'] = (df_pe.High - df_pe.Low)*pip_mult
 
 # -- 05: Evolucion de velas consecutivas (1: Alcistas, 0: Bajistas).
 df_pe['sentido'] = ['alcista'if i>=0 else 'bajista' for i in df_pe.co]
+df_pe['sentido_c'] = fn.secuencial(df_pe.sentido)
 
 # -- 06: Maxima evolucion esperada de velas consecutivas (Dist Acum de Freq).
 periodos = [5, 25, 50]
