@@ -171,13 +171,3 @@ def f_precios_masivos(p0_fini, p1_ffin, p2_gran, p3_inst, p4_oatk, p5_ginc):
 
         return r_df_final
 
-def secuencial(sentido):
-    tmp = np.zeros(sentido.shape)
-    cont = 0
-    for i in range(len(sentido) - 1):
-        if sentido[i] == sentido[i + 1]:
-            cont += 1
-        else:
-            cont = 0
-        tmp[i+1] = cont
-    return tmp
